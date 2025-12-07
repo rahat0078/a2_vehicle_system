@@ -1,10 +1,14 @@
-import express from 'express';
+import config from './config';
+import app from './app';
+import { initDB } from './config/db';
 
 
-const app = express()
-app.use(express.json());
+const port = config.port
+
+initDB()
 
 
-app.listen(5000, () => {
-    console.log(`Server running on port ${"5000"}`);
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
