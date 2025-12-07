@@ -36,9 +36,14 @@ const signUpUser = async (req: Request, res: Response) => {
 
 const signInUser = async (req: Request, res: Response) => {
     try {
-
         const { email, password } = req.body
         const result = await authServices.signInUser(email, password)
+        if(result == null) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found or Invalid Password"
+            })
+        }
         res.status(200).json({
             success: true,
             message: "Login successful",
