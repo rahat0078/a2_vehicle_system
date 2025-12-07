@@ -9,7 +9,7 @@ export const roleAuth = (...roles: string[]) => {
                 message: "Unauthorized"
             });
         }
-        console.log({user: req.user.role, role: roles});
+        // console.log({user: req.user.role, role: roles});
 
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({
