@@ -82,7 +82,7 @@ export const getBookings = async (user: Express.UserPayload) => {
         return result.rows;
     }
 
-    
+
     const result = await pool.query(
         `
     SELECT 
@@ -100,6 +100,55 @@ export const getBookings = async (user: Express.UserPayload) => {
 };
 
 
+interface UpdateBookingPayload {
+    status: "cancelled" | "returned";
+}
+
+const updateBooking = async (bookingId: string, payload: UpdateBookingPayload, loggedInUser: Express.UserPayload) => {
+    
+    const numericBookingId = Number(bookingId);
+    const bookingResult = await pool.query(`SELECT * FROM bookings WHERE id=$1`, [numericBookingId]);
+    if (bookingResult.rows.length === 0) {
+        const error: any = new Error("Booking not found");
+        error.statusCode = 404;
+        throw error;
+    }
+    const booking = bookingResult.rows[0];
+
+    if (loggedInUser.role === "customer" && booking.customer_id !== loggedInUser.id) {
+        const error: any = new Error("Customers can update only their own bookings");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    if (loggedInUser.role === "customer" && payload.status !== "cancelled") {
+        const error: any = new Error("Customers can only cancel bookings");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    if (loggedInUser.role === "admin" && payload.status !== "returned") {
+        const error: any = new Error("Admin can only mark booking as returned");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const updatedBookingResult = await pool.query(
+        `UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,
+        [payload.status, numericBookingId]
+    );
+    const updatedBooking = updatedBookingResult.rows[0];
+
+    if (payload.status === "returned") {
+        await pool.query(`UPDATE vehicles SET availability_status='available' WHERE id=$1`, [
+            booking.vehicle_id,
+        ]);
+        updatedBooking.vehicle = { availability_status: "available" };
+    }
+
+    return updatedBooking;
+};
+
 
 
 
@@ -108,5 +157,5 @@ export const getBookings = async (user: Express.UserPayload) => {
 
 
 export const bookingsServices = {
-    createBooking, getBookings
+    createBooking, getBookings, updateBooking
 }

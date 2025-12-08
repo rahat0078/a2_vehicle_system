@@ -41,7 +41,38 @@ export const getBookings = async (req: Request, res: Response) => {
 };
 
 
+const updateBooking = async (req: Request, res: Response) => {
+    try {
+        const bookingId = req.params.bookingId!;
+        const payload = req.body;
+        const user = req.user!; 
+
+        const updatedBooking = await bookingsServices.updateBooking(bookingId, payload, user);
+
+        const message =
+            payload.status === "cancelled"
+                ? "Booking cancelled successfully"
+                : "Booking marked as returned. Vehicle is now available";
+
+        res.status(200).json({
+            success: true,
+            message,
+            data: updatedBooking,
+        });
+    } catch (err: any) {
+        res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+
+
+
+
+
+
 
 export const bookingController = {
-    createBooking, getBookings
+    createBooking, getBookings, updateBooking
 }
