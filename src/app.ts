@@ -8,7 +8,7 @@ import { bookingRoutes } from './modules/bookings/bookings.routes';
 const app = express();
 app.use(express.json());
 
-
+initDB()
 
 
 // auth user login and signup

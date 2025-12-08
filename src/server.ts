@@ -5,7 +5,7 @@ import { initDB } from './config/db';
 
 const port = config.port
 
-initDB()
+
 
 
 
