@@ -51,7 +51,7 @@ const createBooking = async (payload: CreateBookingPayload) => {
         [vehicle_id]
     );
 
-    
+
     booking.vehicle = {
         vehicle_name: vehicle.vehicle_name,
         daily_rent_price: vehicle.daily_rent_price
@@ -64,11 +64,49 @@ const createBooking = async (payload: CreateBookingPayload) => {
 
 
 
+export const getBookings = async (user: Express.UserPayload) => {
+    if (user.role === "admin") {
+        // Admin: সব bookings দেখবে
+        const result = await pool.query(
+            `
+      SELECT 
+        b.*,
+        json_build_object('name', u.name, 'email', u.email) as customer,
+        json_build_object('vehicle_name', v.vehicle_name, 'registration_number', v.registration_number) as vehicle
+      FROM bookings b
+      JOIN users u ON b.customer_id = u.id
+      JOIN vehicles v ON b.vehicle_id = v.id
+      ORDER BY b.id DESC
+      `
+        );
+        return result.rows;
+    }
+
+    
+    const result = await pool.query(
+        `
+    SELECT 
+      b.*,
+      json_build_object('vehicle_name', v.vehicle_name, 'registration_number', v.registration_number, 'type', v.type) as vehicle
+    FROM bookings b
+    JOIN vehicles v ON b.vehicle_id = v.id
+    WHERE b.customer_id = $1
+    ORDER BY b.id DESC
+    `,
+        [user.id]
+    );
+
+    return result.rows;
+};
+
+
+
+
 
 
 
 
 
 export const bookingsServices = {
-    createBooking
+    createBooking, getBookings
 }
