@@ -3,19 +3,19 @@ import { initDB } from './config/db';
 import { authRoutes } from './modules/auth/auth.routes';
 import { userRoutes } from './modules/users/users.routes';
 import { vehiclesRoutes } from './modules/vehicles/vehicles.routes';
+import { bookingRoutes } from './modules/bookings/bookings.routes';
 
 const app = express();
 app.use(express.json());
 
 
-// initializing database
-initDB();
 
 
 // auth user login and signup
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/vehicles", vehiclesRoutes)
+app.use("/api/v1/bookings", bookingRoutes)
 
 
 
