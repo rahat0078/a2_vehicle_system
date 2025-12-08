@@ -6,7 +6,10 @@ import { roleAuth } from "../../middleware/role";
 
 const router = Router()
 
-router.get("/", auth(), roleAuth("admin"), usersControllers.getUsers)
+router.get("/", auth(), roleAuth("admin"), usersControllers.getUsers);
+router.put("/:userId", auth(), usersControllers.updateUser);
+router.delete("/:userId", auth(), roleAuth("admin"), usersControllers.deleteUser);
+
 
 
 

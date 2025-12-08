@@ -12,7 +12,7 @@ export const auth = () => {
 
             const token = authHeader.split(" ")[1];
             const decoded = jwt.verify(token as string, config.jwtSecret as string) as JwtPayload
-            req.user = decoded;
+            req.user = decoded as Express.UserPayload;
             next();
         } catch (err: any) {
             return res.status(401).json({ success: false, message: "Invalid or expired token" });
