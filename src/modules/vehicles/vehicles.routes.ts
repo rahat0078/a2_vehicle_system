@@ -6,10 +6,11 @@ import { roleAuth } from "../../middleware/role";
 
 const router = Router()
 
-router.post("/",auth(), roleAuth("admin"), vehiclesControllers.createVehicle)
+router.post("/", auth(), roleAuth("admin"), vehiclesControllers.createVehicle)
 router.get("/", vehiclesControllers.getAllVehicles)
 router.get("/:id", vehiclesControllers.getSingleVehicle)
-router.delete("/:vehicleId",auth(), roleAuth("admin"), vehiclesControllers.deleteVehicle)
+router.put("/:vehicleId", auth(), roleAuth("admin"), vehiclesControllers.updateVehicle)
+router.delete("/:vehicleId", auth(), roleAuth("admin"), vehiclesControllers.deleteVehicle)
 
 
 export const vehiclesRoutes = router

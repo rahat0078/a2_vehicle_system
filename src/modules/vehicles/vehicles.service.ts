@@ -20,7 +20,37 @@ const getSingleVehicle = async (id: any) => {
 
 
 
-// update ta baki roilo 
+const updateVehicle = async (vehicleId: string, updateData: any) => {
+    
+    const exist = await pool.query(`SELECT * FROM vehicles WHERE id = $1`, [vehicleId]);
+    if (exist.rows.length === 0) {
+        const error: any = new Error("Vehicle not found");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    
+    if (!updateData || Object.keys(updateData).length === 0) {
+        const error: any = new Error("No fields to update");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const fields = Object.keys(updateData);
+    const values = Object.values(updateData);
+
+    const setString = fields
+        .map((field, index) => `${field} = $${index + 2}`)
+        .join(', ');
+
+    const result = await pool.query(
+        `UPDATE vehicles SET ${setString} WHERE id = $1 RETURNING *`,
+        [vehicleId, ...values]
+    );
+
+    return result.rows[0];
+};
+
 
 
 export const deleteVehicle = async (vehicleId: string) => {
@@ -46,5 +76,5 @@ export const deleteVehicle = async (vehicleId: string) => {
 
 
 export const vehiclesServices = {
-    createVehicle, getAllVehicles, getSingleVehicle, deleteVehicle
+    createVehicle, getAllVehicles, getSingleVehicle, deleteVehicle, updateVehicle
 }
